@@ -1,0 +1,273 @@
+Create Table Restaurant
+(
+    restaurantId number primary key,
+    restaurantName varchar2(30),
+    city varchar2(30),
+    email varchar2(30),
+    mobile varchar2(15),
+    rating number(9,2)
+);
+
+____________________________________________________
+
+CRUD OPERATIONS:
+
+Implement Procedures to AddRestaurant, SearchByRestaurantId, UpdateRestaurant, DeleteRestaurantById
+
+1. Add Restaurant:
+
+CREATE OR REPLACE PROCEDURE AddRestaurant(
+    p_restaurantId IN NUMBER,
+    p_restaurantName IN VARCHAR2,
+    p_city IN VARCHAR2,
+    p_email IN VARCHAR2,
+    p_mobile IN VARCHAR2,
+    p_rating IN NUMBER
+) AS
+BEGIN
+    INSERT INTO Restaurant (restaurantId, restaurantName, city, email, mobile, rating)
+    VALUES (p_restaurantId, p_restaurantName, p_city, p_email, p_mobile, p_rating);
+    DBMS_OUTPUT.PUT_LINE('Restaurant added successfully.');
+END;
+/
+
+EXEC AddRestaurant(1, 'The Gourmet Kitchen', 'New York', 'info@gourmet.com', '1234567890', 4.5);
+EXEC AddRestaurant(2, 'Taj Coromandel', 'Chennai', 'info@taj.com', '9876543210', 4.6);
+
+2. SearchByRestaurantId:
+
+CREATE OR REPLACE PROCEDURE SearchByRestaurantId (
+    p_restaurantId IN NUMBER
+) AS
+    v_restaurantName VARCHAR2(30);
+    v_city VARCHAR2(30);
+    v_email VARCHAR2(30);
+    v_mobile VARCHAR2(30);
+    v_rating NUMBER(9,2);
+BEGIN
+    SELECT restaurantName, city, email, mobile, rating
+    INTO v_restaurantName, v_city, v_email, v_mobile, v_rating
+    FROM Restaurant
+    WHERE restaurantId = p_restaurantId;
+
+    DBMS_OUTPUT.PUT_LINE('Restaurant Details:');
+    DBMS_OUTPUT.PUT_LINE('Name: ' || v_restaurantName);
+    DBMS_OUTPUT.PUT_LINE('City: ' || v_city);
+    DBMS_OUTPUT.PUT_LINE('Email: ' || v_email);
+    DBMS_OUTPUT.PUT_LINE('Mobile: ' || v_mobile);
+    DBMS_OUTPUT.PUT_LINE('Rating: ' || v_rating);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No restaurant found with the given ID');
+END;
+/
+
+EXEC SearchByRestaurantId(1);
+EXEC SearchByRestaurantId(3); 
+
+
+3. UpdateRestaurant:
+
+CREATE OR REPLACE PROCEDURE UpdateRestaurant(
+    p_restaurantId IN NUMBER,
+    p_restaurantName IN VARCHAR2,
+    p_city IN VARCHAR2,
+    p_email IN VARCHAR2,
+    p_mobile IN VARCHAR2,
+    p_rating IN NUMBER
+) AS
+BEGIN
+    UPDATE Restaurant
+    SET 
+        restaurantName = p_restaurantName,
+        city = p_city,
+        email = p_email,
+        mobile = p_mobile,
+        rating = p_rating
+    WHERE restaurantId = p_restaurantId;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No restaurant found with the given ID.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Restaurant updated successfully.');
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/
+
+EXEC UpdateRestaurant(1, 'The Gourmet Kitchen Updated', 'New York Updated', 'newinfo@gourmet.com', '1122334455', 4.8);
+
+4. DeleteRestaurantById
+
+CREATE OR REPLACE Procedure DeleteRestaurantById(
+p_restaurantId IN NUMBER
+) AS
+BEGIN
+	DELETE FROM Restaurant WHERE restaurantId=p_restaurantId;
+
+IF SQL%ROWCOUNT=0 THEN
+	DBMS_OUTPUT.PUT_LINE('No restaurant found with the given ID.');
+ELSE
+	DBMS_OUTPUT.PUT_LINE('Restaurant Deleted Successfully...');
+END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+EXEC DeleteRestaurantById(3);
+
+5. Write cursor to print all restaurant Details
+
+CREATE OR REPLACE PROCEDURE PrintAllRestaurants AS
+    CURSOR restaurantCursor IS
+        SELECT * FROM Restaurant;
+    v_restaurant Restaurant%ROWTYPE;
+BEGIN
+    OPEN restaurantCursor;
+    LOOP
+        FETCH restaurantCursor INTO v_restaurant;
+        EXIT WHEN restaurantCursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(
+            'ID: ' || v_restaurant.restaurantId || 
+            ', Name: ' || v_restaurant.restaurantName || 
+            ', City: ' || v_restaurant.city || 
+            ', Email: ' || v_restaurant.email || 
+            ', Mobile: ' || v_restaurant.mobile || 
+            ', Rating: ' || v_restaurant.rating
+        );
+    END LOOP;
+    CLOSE restaurantCursor;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/
+
+6. Write a procedure with output parameters to searchRestaurantById
+
+CREATE OR REPLACE PROCEDURE SearchByRestaurantId (
+    p_restaurantId IN NUMBER,
+    p_restaurantName OUT VARCHAR2,
+    p_city OUT VARCHAR2,
+    p_email OUT VARCHAR2,
+    p_mobile OUT VARCHAR2,
+    p_rating OUT NUMBER
+) AS
+BEGIN
+    SELECT restaurantName, city, email, mobile, rating
+    INTO p_restaurantName, p_city, p_email, p_mobile, p_rating
+    FROM Restaurant
+    WHERE restaurantId = p_restaurantId;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_restaurantName := NULL;
+        p_city := NULL;
+        p_email := NULL;
+        p_mobile := NULL;
+        p_rating := NULL;
+        DBMS_OUTPUT.PUT_LINE('No restaurant found with the given ID.');
+END;
+/
+
+DECLARE
+    v_name VARCHAR2(30);
+    v_city VARCHAR2(30);
+    v_email VARCHAR2(30);
+    v_mobile VARCHAR2(15);
+    v_rating NUMBER(9,2);
+BEGIN
+   
+    SearchByRestaurantId(1, v_name, v_city, v_email, v_mobile, v_rating);
+    
+    DBMS_OUTPUT.PUT_LINE('Name: ' || v_name);
+    DBMS_OUTPUT.PUT_LINE('City: ' || v_city);
+    DBMS_OUTPUT.PUT_LINE('Email: ' || v_email);
+    DBMS_OUTPUT.PUT_LINE('Mobile: ' || v_mobile);
+    DBMS_OUTPUT.PUT_LINE('Rating: ' || v_rating);
+END;
+/
+
+CREATE TABLE RESTAURANT BACKUP
+Create Table RestaurantBackup
+(
+   RbId number primary key,
+    restaurantId number,
+    restaurantName varchar2(30),
+    city varchar2(30),
+    email varchar2(30),
+    mobile varchar2(15),
+    rating number(9,2),
+    operation varchar2(30),
+    activityOn Date default sysdate
+);
+
+TRIGGERS FOR TABLE BACKUP:
+
+1. Trigger for insert
+
+CREATE OR REPLACE TRIGGER trg_InsertRestaurant
+AFTER INSERT ON Restaurant
+FOR EACH ROW
+BEGIN
+    INSERT INTO RestaurantBackup (
+        RbId, restaurantId, restaurantName, city, email, mobile, rating, operation, activityOn
+    )
+    VALUES (
+        (SELECT NVL(MAX(RbId), 0) + 1 FROM RestaurantBackup), :NEW.restaurantId,:NEW.restaurantName,:NEW.city,:NEW.email,:NEW.mobile,:NEW.rating,'INSERT', SYSDATE);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error in Insert Trigger: ' || SQLERRM);
+END;
+/
+
+INSERT INTO Restaurant (restaurantId, restaurantName, city, email, mobile, rating)
+VALUES (4, 'Olive Garden', 'San Francisco', 'contact@olivegarden.com', '4155551234', 4.3);
+
+2. Trigger for Update
+
+CREATE OR REPLACE TRIGGER trg_UpdateRestaurant
+BEFORE UPDATE ON Restaurant
+FOR EACH ROW
+BEGIN
+    INSERT INTO RestaurantBackup (
+        RbId, restaurantId, restaurantName, city, email, mobile, rating, operation, activityOn
+    )
+    VALUES (
+        (SELECT NVL(MAX(RbId), 0) + 1 FROM RestaurantBackup), :OLD.restaurantId, :OLD.restaurantName, :OLD.city, :OLD.email,:OLD.mobile,:OLD.rating,'UPDATE',
+SYSDATE);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error in Update Trigger: ' || SQLERRM);
+END;
+/
+
+UPDATE Restaurant
+SET city = 'Los Angeles', rating = 4.8
+WHERE restaurantId = 1;
+
+3. Trigger for Delete
+
+CREATE OR REPLACE TRIGGER trg_DeleteRestaurant
+BEFORE DELETE ON Restaurant
+FOR EACH ROW
+BEGIN
+    INSERT INTO RestaurantBackup (
+        RbId, restaurantId, restaurantName, city, email, mobile, rating, operation, activityOn
+    )
+    VALUES (
+        (SELECT NVL(MAX(RbId), 0) + 1 FROM RestaurantBackup),:OLD.restaurantId,:OLD.restaurantName,:OLD.city,:OLD.email,:OLD.mobile,:OLD.rating,'DELETE',
+SYSDATE);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error in Delete Trigger: ' || SQLERRM);
+END;
+/
+
+DELETE FROM Restaurant
+WHERE restaurantId = 4;
+
+
+
