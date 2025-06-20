@@ -2,27 +2,27 @@ create database AmazeCare;
 use AmazeCare;
 
 CREATE TABLE Patient (
-    PatientID INT AUTO_INCREMENT PRIMARY KEY,
-    FullName VARCHAR(255) NOT NULL,
-    DateOfBirth DATE NOT NULL,
+    patient_id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
     Gender ENUM('Male', 'Female', 'Other') NOT NULL,
-    ContactNumber VARCHAR(15) NOT NULL,
+    Contact_number VARCHAR(15) NOT NULL,
     Email VARCHAR(255) UNIQUE NOT NULL,
-    PasswordHash VARCHAR(255) NOT NULL,
-    MedicalHistory TEXT,
-    RegistrationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Password_hash VARCHAR(255) NOT NULL,
+    medical_history TEXT,
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Doctor (
     DoctorID INT AUTO_INCREMENT PRIMARY KEY,
-    FullName VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
     Specialty VARCHAR(255) NOT NULL,
-    ExperienceYears INT NOT NULL,
+    experience_years INT NOT NULL,
     Qualification VARCHAR(255) NOT NULL,
     Designation VARCHAR(255) NOT NULL,
-    ContactNumber VARCHAR(15) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL,
     Email VARCHAR(255) UNIQUE NOT NULL,
-    PasswordHash VARCHAR(255) NOT NULL
+    password_hash VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Appointment (
@@ -38,12 +38,11 @@ CREATE TABLE Appointment (
     FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID)
 );
 
-CREATE TABLE Admin (
-    AdminID INT AUTO_INCREMENT PRIMARY KEY,
-    FullName VARCHAR(255) NOT NULL,
-    Email VARCHAR(255) UNIQUE NOT NULL,
-    PasswordHash VARCHAR(255) NOT NULL,
-    ContactNumber VARCHAR(15) NOT NULL
+CREATE TABLE Hospital (
+    hospital_id INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    city VARCHAR(255) UNIQUE NOT NULL,
+    Location VARCHAR(255) NOT NULL,
 );
 
 CREATE TABLE MedicalRecord (
